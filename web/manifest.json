@@ -1,0 +1,35 @@
+{
+    "name": "bangla_mapjok",
+    "short_name": "bangla_mapjok",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "বাংলা মাপজোক একটি সহজ, দ্রুত এবং ব্যবহারবান্ধব অ্যাপ যা দৈনন্দিন জীবনে প্রয়োজনীয় সব ধরনের মাপ এক ক্লিকে রূপান্তর করতে সাহায্য করে। এতে রয়েছে দৈর্ঘ্য, ওজন, তাপমাত্রা, এলাকা, সময়, স্পিড, কারেন্সি সহ আরও অনেক ইউনিট কনভার্সন—সবকিছু বাংলা ভাষায়। ছাত্রছাত্রী, ইঞ্জিনিয়ার, ক্রেতা বা সাধারণ ব্যবহারকারী—সবার জন্যই এটি পারফেক্ট।",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

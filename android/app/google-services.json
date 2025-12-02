@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "628204193428",
+    "project_id": "mapjok-dbaca",
+    "storage_bucket": "mapjok-dbaca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628204193428:android:68858a1a62b9d47c565681",
+        "android_client_info": {
+          "package_name": "com.example.bangla_mapjok"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASUbmeQ4BVaQ7OkE54aK7pFTTMw1FT_eU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
