@@ -12,28 +12,78 @@ class LanguageSelectionScreen extends StatelessWidget {
     final locale = Provider.of<LocaleProvider>(context, listen: false);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text(S.t('choose_language', locale.locale.languageCode)),
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: Text(
+          S.t('choose_language', locale.locale.languageCode),
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await locale.setLocale('bn');
-                Navigator.of(context).pop();
-              },
-              child: Text('${S.t('bangla', 'en')} - ${S.t('bangla', 'bn')}'),
+            // App Icon
+            Image.asset("assets/images/icon.png", height: 90),
+            const SizedBox(height: 16),
+
+            Text(
+              S.t('choose_language', locale.locale.languageCode),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A1A),
+              ),
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () async {
-                await locale.setLocale('en');
-                Navigator.of(context).pop();
-              },
-              child: Text(S.t('english', 'en')),
+            const SizedBox(height: 32),
+
+            // Bangla Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await locale.setLocale('bn');
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A1A1A),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  '${S.t('bangla', 'en')} - ${S.t('bangla', 'bn')}',
+                  style: const TextStyle(fontSize: 17, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // English Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await locale.setLocale('en');
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.black12),
+                  ),
+                ),
+                child: Text(
+                  S.t('english', 'en'),
+                  style: const TextStyle(fontSize: 17),
+                ),
+              ),
             ),
           ],
         ),

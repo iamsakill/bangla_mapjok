@@ -1,7 +1,7 @@
 class S {
   static final Map<String, Map<String, String>> _localized = {
     'en': {
-      'app_title': 'Abenagla Unit Converter',
+      'app_title': 'Mapjok Unit Converter',
       'login': 'Login',
       'register': 'Register',
       'email': 'Email',
@@ -15,7 +15,6 @@ class S {
       'to': 'To',
       'result': 'Result',
       'logout': 'Logout',
-      // ✅ BottomNavigation labels
       'area': 'Area',
       'length': 'Length',
       'volume': 'Volume',
@@ -23,7 +22,7 @@ class S {
       'settings': 'Settings',
     },
     'bn': {
-      'app_title': 'অবেঙ্গলা ইউনিট কনভার্টার',
+      'app_title': 'মাপজোক ইউনিট কনভার্টার',
       'login': 'লগইন',
       'register': 'রেজিস্টার',
       'email': 'ইমেইল',
@@ -37,7 +36,6 @@ class S {
       'to': 'এবং',
       'result': 'ফলাফল',
       'logout': 'লগআউট',
-      // ✅ BottomNavigation labels in Bengali
       'area': 'এলাকা',
       'length': 'দৈর্ঘ্য',
       'volume': 'আয়তন',

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'services/auth_service.dart';
 import 'screens/root.dart';
 
@@ -27,17 +26,14 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => LocaleProvider(prefs)),
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-        ), // ⭐ Theme support
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: Consumer2<LocaleProvider, ThemeProvider>(
         builder: (context, localeProvider, themeProvider, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
 
-            title: 'MapJok', // ⭐ Updated app name
-            // ⭐ Theme Support Added
+            title: 'MapJok',
             theme: ThemeData.light().copyWith(
               primaryColor: Colors.indigo,
               colorScheme: ColorScheme.fromSeed(
@@ -51,13 +47,12 @@ class MyApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
             ),
-            themeMode: themeProvider.themeMode, // ⭐ choose: light/dark/system
+            themeMode: themeProvider.themeMode,
             // ⭐ Correct Locale usage
             locale: localeProvider.locale,
 
             supportedLocales: const [Locale('en'), Locale('bn')],
 
-            // ⭐ Proper localization delegates (not const)
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,

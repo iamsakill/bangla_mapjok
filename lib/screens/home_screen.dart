@@ -35,100 +35,142 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Adaptive Professional AppBar
-  AppBar buildProfessionalAppBar(BuildContext context, String localeCode) {
-    final theme = Theme.of(context).brightness;
-    final bool isDark = theme == Brightness.dark;
-
-    // Gradient colors for light/dark theme
-    final gradientColors = isDark
-        ? [Colors.deepPurple.shade700, Colors.indigo.shade900]
-        : [Colors.indigo.shade500, Colors.blue.shade400];
+  PreferredSizeWidget buildProfessionalAppBar(String localeCode) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      backgroundColor: colorScheme.surface,
+      elevation: 0,
+      centerTitle: false,
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Image.asset('assets/images/icon.png', height: 32),
           ),
-        ),
-      ),
-      elevation: 4,
-      centerTitle: true,
-      title: Text(
-        S.t('app_title', localeCode),
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          letterSpacing: 0.5,
-        ),
-      ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                S.t('app_title', localeCode),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                'Professional Unit Converter',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  /// Adaptive BottomNavigationBar with dynamic labels
-  BottomNavigationBar buildAdaptiveBottomNavBar(String localeCode) {
-    final theme = Theme.of(context).brightness;
-    final bool isDark = theme == Brightness.dark;
-
-    return BottomNavigationBar(
-      currentIndex: _selected,
-      onTap: (v) => setState(() => _selected = v),
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-      selectedItemColor: isDark ? Colors.tealAccent : Colors.indigo,
-      unselectedItemColor: isDark ? Colors.white70 : Colors.grey,
-      showUnselectedLabels: true,
-      items: [
-        BottomNavigationBarItem(
+  Widget buildModernBottomNavBar(String localeCode) {
+    return NavigationBar(
+      selectedIndex: _selected,
+      onDestinationSelected: (v) => setState(() => _selected = v),
+      indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
+      elevation: 5,
+      height: 75,
+      destinations: [
+        NavigationDestination(
           icon: const Icon(Icons.map_outlined),
+          selectedIcon: const Icon(Icons.map),
           label: S.t('area', localeCode),
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.straighten),
+        NavigationDestination(
+          icon: const Icon(Icons.straighten_outlined),
+          selectedIcon: const Icon(Icons.straighten),
           label: S.t('length', localeCode),
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.water_drop),
+        NavigationDestination(
+          icon: const Icon(Icons.water_drop_outlined),
+          selectedIcon: const Icon(Icons.water_drop),
           label: S.t('volume', localeCode),
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.monitor_weight),
+        NavigationDestination(
+          icon: const Icon(Icons.monitor_weight_outlined),
+          selectedIcon: const Icon(Icons.monitor_weight),
           label: S.t('weight', localeCode),
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
+        NavigationDestination(
+          icon: const Icon(Icons.settings_outlined),
+          selectedIcon: const Icon(Icons.settings),
           label: S.t('settings', localeCode),
         ),
       ],
     );
   }
 
+  Widget buildHeaderSection(String localeCode) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Welcome to ${S.t('app_title', localeCode)}',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Quickly convert Area, Length, Volume, and Weight with ease. Select a category below to get started!',
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Divider(color: colorScheme.outline, thickness: 1),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Listen to LocaleProvider for dynamic language updates
     final localeProvider = Provider.of<LocaleProvider>(context);
     final localeCode = localeProvider.locale.languageCode;
 
-    // Pages with dynamic localeCode
     final List<Widget> pages = [
       AreaConverter(localeCode: localeCode),
       LengthConverter(localeCode: localeCode),
       VolumeConverter(localeCode: localeCode),
       WeightConverter(localeCode: localeCode),
-      const SettingsPage(), // SettingsPage handles locale internally
+      const SettingsPage(),
     ];
 
     return Scaffold(
-      appBar: buildProfessionalAppBar(context, localeCode),
-      body: pages[_selected],
-      bottomNavigationBar: buildAdaptiveBottomNavBar(localeCode),
+      appBar: buildProfessionalAppBar(localeCode),
+      body: Column(
+        children: [
+          // Add a header section before the converter content
+          buildHeaderSection(localeCode),
+          // Expanded page content
+          Expanded(child: pages[_selected]),
+        ],
+      ),
+      bottomNavigationBar: buildModernBottomNavBar(localeCode),
     );
   }
 }
