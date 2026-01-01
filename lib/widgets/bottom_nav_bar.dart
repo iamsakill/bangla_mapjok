@@ -1,5 +1,5 @@
-// lib/screens/home_nav_controller.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../converters/area.dart';
@@ -17,13 +17,46 @@ class HomeNavController extends StatefulWidget {
   State<HomeNavController> createState() => _HomeNavControllerState();
 }
 
-class _HomeNavControllerState extends State<HomeNavController> {
+class _HomeNavControllerState extends State<HomeNavController>
+    with SingleTickerProviderStateMixin {
   int _index = 0;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTabTapped(int index) {
+    if (_index != index) {
+      HapticFeedback.lightImpact();
+      _controller.reset();
+      setState(() => _index = index);
+      _controller.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final localeCode = localeProvider.locale.languageCode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     // Pages with dynamic locale
     final List<Widget> pages = [
@@ -34,38 +67,109 @@ class _HomeNavControllerState extends State<HomeNavController> {
       const SettingsPage(),
     ];
 
+    // Icon data for each tab
+    final List<IconData> icons = [
+      Icons.map_outlined,
+      Icons.straighten_outlined,
+      Icons.water_drop_outlined,
+      Icons.monitor_weight_outlined,
+      Icons.settings_outlined,
+    ];
+
+    final List<IconData> activeIcons = [
+      Icons.map,
+      Icons.straighten,
+      Icons.water_drop,
+      Icons.monitor_weight,
+      Icons.settings,
+    ];
+
+    final List<String> labels = [
+      S.t('area', localeCode),
+      S.t('length', localeCode),
+      S.t('volume', localeCode),
+      S.t('weight', localeCode),
+      S.t('settings', localeCode),
+    ];
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(S.t('app_title', localeCode)),
-        centerTitle: true,
+      extendBody: true,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.05, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: Container(key: ValueKey<int>(_index), child: pages[_index]),
       ),
-      body: pages[_index],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.map),
-            label: S.t('area', localeCode), // ✅ Now dynamically translated
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: BottomNavigationBar(
+            currentIndex: _index,
+            onTap: _onTabTapped,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            backgroundColor: colorScheme.surface,
+            selectedItemColor: colorScheme.primary,
+            unselectedItemColor: colorScheme.onSurfaceVariant.withOpacity(0.6),
+            selectedFontSize: 12,
+            unselectedFontSize: 11,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+            items: List.generate(
+              5,
+              (index) => BottomNavigationBarItem(
+                icon: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  padding: EdgeInsets.all(_index == index ? 8 : 6),
+                  decoration: BoxDecoration(
+                    gradient: _index == index
+                        ? LinearGradient(
+                            colors: [
+                              colorScheme.primary.withOpacity(0.15),
+                              colorScheme.secondary.withOpacity(0.1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _index == index ? activeIcons[index] : icons[index],
+                    size: _index == index ? 26 : 24,
+                  ),
+                ),
+                label: labels[index],
+                tooltip: labels[index],
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.straighten),
-            label: S.t('length', localeCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.water_drop),
-            label: S.t('volume', localeCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.monitor_weight),
-            label: S.t('weight', localeCode),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: S.t('settings', localeCode),
-          ),
-        ],
+        ),
       ),
     );
   }

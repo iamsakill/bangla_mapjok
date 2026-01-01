@@ -13,79 +13,74 @@ class LanguageSelectionScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
-        title: Text(
-          S.t('choose_language', locale.locale.languageCode),
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-        child: Column(
-          children: [
-            // App Icon
-            Image.asset("assets/images/icon.png", height: 90),
-            const SizedBox(height: 16),
 
-            Text(
-              S.t('choose_language', locale.locale.languageCode),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+          child: Column(
+            children: [
+              // App Icon
+              Image.asset("assets/images/icon.png", height: 90),
+              const SizedBox(height: 16),
+
+              Text(
+                S.t('choose_language', locale.locale.languageCode),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A1A),
+                ),
               ),
-            ),
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // Bangla Button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await locale.setLocale('bn');
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A1A1A),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // Bangla Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await locale.setLocale('bn');
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A1A1A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    ' ${S.t('bangla', 'bn')}',
+                    style: const TextStyle(fontSize: 17, color: Colors.white),
                   ),
                 ),
-                child: Text(
-                  '${S.t('bangla', 'en')} - ${S.t('bangla', 'bn')}',
-                  style: const TextStyle(fontSize: 17, color: Colors.white),
-                ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // English Button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await locale.setLocale('en');
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black12),
+              // English Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await locale.setLocale('en');
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Colors.black12),
+                    ),
+                  ),
+                  child: Text(
+                    S.t('english', 'en'),
+                    style: const TextStyle(fontSize: 17),
                   ),
                 ),
-                child: Text(
-                  S.t('english', 'en'),
-                  style: const TextStyle(fontSize: 17),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
