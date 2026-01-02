@@ -332,7 +332,7 @@ class _AreaConverterState extends State<AreaConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(

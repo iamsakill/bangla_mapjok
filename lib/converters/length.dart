@@ -319,7 +319,7 @@ class _LengthConverterState extends State<LengthConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(

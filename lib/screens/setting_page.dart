@@ -143,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -205,7 +205,7 @@ class _SettingsPageState extends State<SettingsPage>
           ),
           DropdownButtonFormField<ThemeMode>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -287,7 +287,7 @@ class _SettingsPageState extends State<SettingsPage>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: CustomAppBar(localeCode: localeProvider.locale.languageCode),
       body: FadeTransition(
         opacity: _fadeAnimation,

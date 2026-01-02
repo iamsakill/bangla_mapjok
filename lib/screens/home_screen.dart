@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../converters/area.dart';
 import '../converters/length.dart';
@@ -22,10 +23,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selected = 0;
 
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkLanguage());
+    _loadBannerAd();
   }
 
   void _checkLanguage() {
@@ -37,11 +43,34 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-1125345878565611/9139675106', // TEST banner
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() => _isBannerLoaded = true);
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          debugPrint('BannerAd failed to load: $error');
+        },
+      ),
+    )..load();
+  }
+
   void _onTabTapped(int index) {
     if (_selected != index) {
       HapticFeedback.lightImpact();
       setState(() => _selected = index);
     }
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -82,26 +111,42 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: CustomAppBar(localeCode: localeProvider.locale.languageCode),
       drawer: const AppDrawer(),
 
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeInOut,
-        switchOutCurve: Curves.easeInOut,
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.05, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
+      body: Column(
+        children: [
+          // MAIN CONTENT
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.05, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                key: ValueKey<int>(_selected),
+                child: pages[_selected],
+              ),
             ),
-          );
-        },
-        child: Container(
-          key: ValueKey<int>(_selected),
-          child: pages[_selected],
-        ),
+          ),
+
+          // BANNER AD (ABOVE BOTTOM NAV)
+          if (_isBannerLoaded && _bannerAd != null)
+            Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              alignment: Alignment.center,
+              child: AdWidget(ad: _bannerAd!),
+            ),
+        ],
       ),
 
       bottomNavigationBar: Container(
@@ -132,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
             items: List.generate(
-              4, // Only 4 converter tabs
+              4,
               (index) => BottomNavigationBarItem(
                 icon: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -145,8 +190,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               colorScheme.primary.withOpacity(0.15),
                               colorScheme.secondary.withOpacity(0.1),
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
                           )
                         : null,
                     borderRadius: BorderRadius.circular(12),
@@ -157,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 label: labels[index],
-                tooltip: labels[index],
               ),
             ),
           ),

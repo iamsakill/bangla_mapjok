@@ -5,12 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart'; // ✅ ADD THIS
+
 import 'services/auth_service.dart';
 import 'screens/root.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
+
+  // ✅ INITIALIZE ADMOB (MANDATORY)
+  await MobileAds.instance.initialize();
 
   final prefs = await SharedPreferences.getInstance();
   runApp(MyApp(prefs: prefs));
@@ -32,8 +38,8 @@ class MyApp extends StatelessWidget {
         builder: (context, localeProvider, themeProvider, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-
             title: 'MapJok',
+
             theme: ThemeData.light().copyWith(
               primaryColor: Colors.indigo,
               colorScheme: ColorScheme.fromSeed(
@@ -47,8 +53,8 @@ class MyApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
             ),
+
             themeMode: themeProvider.themeMode,
-            // ⭐ Correct Locale usage
             locale: localeProvider.locale,
 
             supportedLocales: const [Locale('en'), Locale('bn')],

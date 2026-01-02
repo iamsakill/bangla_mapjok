@@ -304,7 +304,7 @@ class _WeightConverterState extends State<WeightConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

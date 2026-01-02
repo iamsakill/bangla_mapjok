@@ -3,6 +3,9 @@
         android:label="bangla_mapjok"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1125345878565611~9708497221" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

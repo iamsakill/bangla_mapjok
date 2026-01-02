@@ -342,7 +342,7 @@ class _VolumeConverterState extends State<VolumeConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/locale_provider.dart';
-import '../utils/localization.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});
