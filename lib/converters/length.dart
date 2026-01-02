@@ -42,7 +42,7 @@ class _LengthConverterState extends State<LengthConverter>
       'factor': 0.001,
       'icon': Icons.horizontal_rule,
     },
-    {'key': 'Kilometer', 'short': 'km', 'factor': 1000, 'icon': Icons.route},
+    {'key': 'Kilometer', 'short': 'km', 'factor': 1000.0, 'icon': Icons.route},
     {
       'key': 'Inch',
       'short': 'inch',
@@ -70,7 +70,7 @@ class _LengthConverterState extends State<LengthConverter>
       'factor': 0.01875,
       'icon': Icons.fingerprint,
     },
-    {'key': 'কস', 'short': 'কস', 'factor': 3200, 'icon': Icons.explore},
+    {'key': 'কস', 'short': 'কস', 'factor': 3200.0, 'icon': Icons.explore},
   ];
 
   final Map<String, String> unitBnNames = {
@@ -132,19 +132,19 @@ class _LengthConverterState extends State<LengthConverter>
     super.dispose();
   }
 
+  // Fixed convert() function
   void convert() {
     if (selectedFrom != null && selectedTo != null) {
-      final fromFactor =
-          units.firstWhere((e) => e['short'] == selectedFrom!)['factor']
-              as double;
-      final toFactor =
-          units.firstWhere((e) => e['short'] == selectedTo!)['factor']
-              as double;
+      final fromFactor = (units.firstWhere(
+        (e) => e['short'] == selectedFrom!,
+      )['factor']).toDouble(); // convert safely
+      final toFactor = (units.firstWhere(
+        (e) => e['short'] == selectedTo!,
+      )['factor']).toDouble(); // convert safely
       setState(() {
         result = inputValue * fromFactor / toFactor;
       });
 
-      // Animate result
       _scaleController.reset();
       _scaleController.forward();
     }
@@ -259,6 +259,7 @@ class _LengthConverterState extends State<LengthConverter>
               ),
               onChanged: (v) {
                 setState(() {
+                  // Ensure inputValue is always double
                   inputValue = double.tryParse(v) ?? 0.0;
                   convert();
                 });
