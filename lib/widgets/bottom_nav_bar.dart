@@ -6,7 +6,6 @@ import '../converters/area.dart';
 import '../converters/length.dart';
 import '../converters/volume.dart';
 import '../converters/weight.dart';
-import '../screens/setting_page.dart';
 import '../provider/locale_provider.dart';
 import '../utils/localization.dart';
 
@@ -26,6 +25,7 @@ class _HomeNavControllerState extends State<HomeNavController>
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -34,6 +34,7 @@ class _HomeNavControllerState extends State<HomeNavController>
       begin: 0.95,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
     _controller.forward();
   }
 
@@ -58,22 +59,19 @@ class _HomeNavControllerState extends State<HomeNavController>
     final localeCode = localeProvider.locale.languageCode;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Pages with dynamic locale
-    final List<Widget> pages = [
-      AreaConverter(localeCode: localeCode),
-      LengthConverter(localeCode: localeCode),
-      VolumeConverter(localeCode: localeCode),
-      WeightConverter(localeCode: localeCode),
-      const SettingsPage(),
+    // Labels (dynamic)
+    final List<String> labels = [
+      S.t('area', localeCode),
+      S.t('length', localeCode),
+      S.t('volume', localeCode),
+      S.t('weight', localeCode),
     ];
 
-    // Icon data for each tab
     final List<IconData> icons = [
       Icons.map_outlined,
       Icons.straighten_outlined,
       Icons.water_drop_outlined,
       Icons.monitor_weight_outlined,
-      Icons.settings_outlined,
     ];
 
     final List<IconData> activeIcons = [
@@ -81,37 +79,22 @@ class _HomeNavControllerState extends State<HomeNavController>
       Icons.straighten,
       Icons.water_drop,
       Icons.monitor_weight,
-      Icons.settings,
-    ];
-
-    final List<String> labels = [
-      S.t('area', localeCode),
-      S.t('length', localeCode),
-      S.t('volume', localeCode),
-      S.t('weight', localeCode),
-      S.t('settings', localeCode),
     ];
 
     return Scaffold(
       extendBody: true,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeInOut,
-        switchOutCurve: Curves.easeInOut,
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.05, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ),
-          );
-        },
-        child: Container(key: ValueKey<int>(_index), child: pages[_index]),
+
+      /// Only the 4 converter pages
+      body: IndexedStack(
+        index: _index,
+        children: [
+          AreaConverter(localeCode: localeCode),
+          LengthConverter(localeCode: localeCode),
+          VolumeConverter(localeCode: localeCode),
+          WeightConverter(localeCode: localeCode),
+        ],
       ),
+
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -140,7 +123,7 @@ class _HomeNavControllerState extends State<HomeNavController>
             ),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
             items: List.generate(
-              5,
+              4, // Only 4 items now
               (index) => BottomNavigationBarItem(
                 icon: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),

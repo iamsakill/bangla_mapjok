@@ -1,3 +1,5 @@
+import 'package:bangla_mapjok/screens/login_screen.dart';
+import 'package:bangla_mapjok/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -286,6 +288,7 @@ class _SettingsPageState extends State<SettingsPage>
 
     return Scaffold(
       backgroundColor: colorScheme.background,
+      appBar: CustomAppBar(localeCode: localeProvider.locale.languageCode),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(
@@ -465,6 +468,11 @@ class _SettingsPageState extends State<SettingsPage>
                   text: isBangla ? 'লগ আউট' : 'Logout',
                   onPressed: () async {
                     await auth.signOut();
+                    HapticFeedback.mediumImpact();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                      (route) => false,
+                    );
                   },
                   context: context,
                 ),
