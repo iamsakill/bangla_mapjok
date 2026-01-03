@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/localization.dart';
@@ -17,18 +18,19 @@ class _LengthConverterState extends State<LengthConverter>
   double inputValue = 1.0;
   double result = 0.0;
 
-  late AnimationController _fadeController;
-  late AnimationController _scaleController;
-  late AnimationController _swapController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _swapRotation;
+  late final AnimationController _fadeController;
+  late final AnimationController _scaleController;
+  late final AnimationController _swapController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _swapRotation;
 
   final TextEditingController _textController = TextEditingController(
-    text: '1.0',
+    text: '1',
   );
 
   final List<Map<String, dynamic>> units = [
+    // Metric & Imperial
     {'key': 'Meter', 'short': 'm', 'factor': 1.0, 'icon': Icons.straighten},
     {
       'key': 'Centimeter',
@@ -62,6 +64,7 @@ class _LengthConverterState extends State<LengthConverter>
       'factor': 1609.34,
       'icon': Icons.alt_route,
     },
+    // Bangladesh traditional
     {'key': 'গজ', 'short': 'গজ', 'factor': 0.838, 'icon': Icons.analytics},
     {'key': 'হাত', 'short': 'হাত', 'factor': 0.4572, 'icon': Icons.back_hand},
     {
@@ -91,32 +94,30 @@ class _LengthConverterState extends State<LengthConverter>
   @override
   void initState() {
     super.initState();
-
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-
     _scaleController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-
     _swapController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
     );
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    _scaleAnimation = CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.elasticOut,
     );
-
-    _swapRotation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _swapController, curve: Curves.easeInOut),
+    _swapRotation = CurvedAnimation(
+      parent: _swapController,
+      curve: Curves.easeInOut,
     );
 
     _fadeController.forward();
@@ -132,36 +133,48 @@ class _LengthConverterState extends State<LengthConverter>
     super.dispose();
   }
 
-  // Fixed convert() function
   void convert() {
-    if (selectedFrom != null && selectedTo != null) {
-      final fromFactor = (units.firstWhere(
-        (e) => e['short'] == selectedFrom!,
-      )['factor']).toDouble(); // convert safely
-      final toFactor = (units.firstWhere(
-        (e) => e['short'] == selectedTo!,
-      )['factor']).toDouble(); // convert safely
-      setState(() {
-        result = inputValue * fromFactor / toFactor;
-      });
-
-      _scaleController.reset();
-      _scaleController.forward();
+    if (selectedFrom == null || selectedTo == null) {
+      setState(() => result = 0.0);
+      return;
     }
+
+    final fromFactor =
+        (units.firstWhere((e) => e['short'] == selectedFrom!)['factor'] as num)
+            .toDouble();
+    final toFactor =
+        (units.firstWhere((e) => e['short'] == selectedTo!)['factor'] as num)
+            .toDouble();
+    final value = math.max(0, inputValue);
+
+    setState(() => result = value * fromFactor / toFactor);
+
+    _scaleController
+      ..reset()
+      ..forward();
   }
 
   void swapUnits() {
+    if (selectedFrom == null || selectedTo == null) return;
+
     _swapController.forward().then((_) {
-      final temp = selectedFrom;
       setState(() {
+        final temp = selectedFrom;
         selectedFrom = selectedTo;
         selectedTo = temp;
-        convert();
       });
+      convert();
       _swapController.reverse();
     });
   }
 
+  String _formatResult(double v) {
+    if (v.isNaN || v.isInfinite) return '0';
+    final text = v.toStringAsFixed(6);
+    return text.replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
+  // ---------------- UI ----------------
   Widget _buildInputCard() {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -171,99 +184,139 @@ class _LengthConverterState extends State<LengthConverter>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              colorScheme.primaryContainer.withOpacity(0.3),
-              colorScheme.secondaryContainer.withOpacity(0.2),
+              colorScheme.primaryContainer.withOpacity(0.4),
+              colorScheme.secondaryContainer.withOpacity(0.3),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: colorScheme.outline.withOpacity(0.2),
-            width: 1,
+            color: colorScheme.primary.withOpacity(0.1),
+            width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: colorScheme.primary.withOpacity(0.15),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.05),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
+              spreadRadius: -8,
             ),
           ],
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [
+                        colorScheme.primary.withOpacity(0.15),
+                        colorScheme.primary.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: colorScheme.primary.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     Icons.calculate_outlined,
                     color: colorScheme.primary,
-                    size: 24,
+                    size: 26,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Text(
                   S.t('value', widget.localeCode),
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurface,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _textController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+            const SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: colorScheme.outline.withOpacity(0.15),
+                  width: 1.5,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: colorScheme.outline.withOpacity(0.2),
-                    width: 1,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _textController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                ],
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.primary,
+                  letterSpacing: -0.5,
+                ),
+                decoration: InputDecoration(
+                  filled: false,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2.5,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
+                  suffixIcon: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      color: colorScheme.primary.withOpacity(0.4),
+                      size: 24,
+                    ),
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                suffixIcon: Icon(
-                  Icons.edit_outlined,
-                  color: colorScheme.primary.withOpacity(0.5),
-                ),
-              ),
-              onChanged: (v) {
-                setState(() {
-                  // Ensure inputValue is always double
+                onChanged: (v) {
                   inputValue = double.tryParse(v) ?? 0.0;
                   convert();
-                });
-              },
+                },
+              ),
             ),
           ],
         ),
@@ -274,25 +327,30 @@ class _LengthConverterState extends State<LengthConverter>
   Widget _buildUnitSelector(
     String label,
     String? value,
-    Function(String?) onChanged,
+    ValueChanged<String?> onChanged,
     IconData icon,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    final localeCode = widget.localeCode;
 
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
             offset: const Offset(0, 4),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -300,16 +358,23 @@ class _LengthConverterState extends State<LengthConverter>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
             child: Row(
               children: [
-                Icon(icon, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 16, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
                     letterSpacing: 0.5,
                   ),
@@ -319,17 +384,18 @@ class _LengthConverterState extends State<LengthConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            initialValue: value,
-            decoration: InputDecoration(
+            initialValue: units.any((e) => e['short'] == value) ? value : null,
+            decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
               ),
             ),
             icon: Icon(
               Icons.arrow_drop_down_circle,
               color: colorScheme.primary,
+              size: 24,
             ),
             items: units
                 .map(
@@ -337,21 +403,29 @@ class _LengthConverterState extends State<LengthConverter>
                     value: e['short'] as String,
                     child: Row(
                       children: [
-                        Icon(
-                          e['icon'] as IconData,
-                          size: 20,
-                          color: colorScheme.primary.withOpacity(0.7),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            e['icon'] as IconData,
+                            size: 20,
+                            color: colorScheme.primary,
+                          ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            localeCode == 'bn'
+                            widget.localeCode == 'bn'
                                 ? '${unitBnNames[e['key']] ?? e['key']} (${e['short']})'
-                                : '${S.t(e['key'], localeCode)} (${e['short']})',
+                                : '${S.t(e['key'], widget.localeCode)} (${e['short']})',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color: colorScheme.onSurface,
+                              letterSpacing: 0.1,
                             ),
                           ),
                         ),
@@ -372,7 +446,6 @@ class _LengthConverterState extends State<LengthConverter>
 
   Widget _buildSwapButton() {
     final colorScheme = Theme.of(context).colorScheme;
-
     return RotationTransition(
       turns: _swapRotation,
       child: Container(
@@ -386,16 +459,32 @@ class _LengthConverterState extends State<LengthConverter>
           boxShadow: [
             BoxShadow(
               color: colorScheme.primary.withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+              spreadRadius: -2,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.2),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+              spreadRadius: -4,
             ),
           ],
         ),
-        child: IconButton(
-          icon: const Icon(Icons.swap_horiz, size: 28),
-          color: Colors.white,
-          onPressed: swapUnits,
-          tooltip: S.t('swap_units', widget.localeCode),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: swapUnits,
+            customBorder: const CircleBorder(),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              child: const Icon(
+                Icons.swap_horiz,
+                size: 28,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -408,22 +497,26 @@ class _LengthConverterState extends State<LengthConverter>
       scale: _scaleAnimation,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              colorScheme.primary.withOpacity(0.8),
-              colorScheme.secondary.withOpacity(0.6),
-            ],
+            colors: [colorScheme.primary, colorScheme.secondary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: colorScheme.primary.withOpacity(0.4),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.2),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
+              spreadRadius: -8,
             ),
           ],
         ),
@@ -433,54 +526,60 @@ class _LengthConverterState extends State<LengthConverter>
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1.5,
+                    ),
                   ),
                   child: const Icon(
                     Icons.done_all,
                     color: Colors.white,
-                    size: 20,
+                    size: 22,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Text(
                   S.t('result', widget.localeCode),
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white70,
-                    letterSpacing: 1,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
                   child: Text(
-                    result.isNaN ? '0' : result.toStringAsFixed(6),
+                    _formatResult(result),
                     style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      letterSpacing: -0.5,
+                      letterSpacing: -1,
+                      height: 1.1,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
                     selectedTo ?? '',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white70,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withOpacity(0.85),
+                      letterSpacing: 0.3,
                     ),
                   ),
                 ),
@@ -494,36 +593,48 @@ class _LengthConverterState extends State<LengthConverter>
 
   Widget _buildClearButton() {
     final colorScheme = Theme.of(context).colorScheme;
-
     return SizedBox(
       width: double.infinity,
-      height: 56,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            selectedFrom = null;
-            selectedTo = null;
-            inputValue = 1.0;
-            result = 0.0;
-            _textController.text = '1.0';
-          });
-          HapticFeedback.mediumImpact();
-        },
-        icon: const Icon(Icons.clear_all, size: 22),
-        label: Text(
-          S.t('clear', widget.localeCode),
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
+      height: 60,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.error.withOpacity(0.2),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+              spreadRadius: -2,
+            ),
+          ],
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.errorContainer,
-          foregroundColor: colorScheme.onErrorContainer,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedFrom = null;
+              selectedTo = null;
+              inputValue = 1.0;
+              result = 0.0;
+              _textController.text = '1';
+            });
+            HapticFeedback.mediumImpact();
+          },
+          icon: const Icon(Icons.clear_all, size: 24),
+          label: Text(
+            S.t('clear', widget.localeCode),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.errorContainer,
+            foregroundColor: colorScheme.onErrorContainer,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
           ),
         ),
       ),
@@ -539,7 +650,7 @@ class _LengthConverterState extends State<LengthConverter>
         child: Column(
           children: [
             _buildInputCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Row(
               children: [
                 Expanded(
@@ -547,16 +658,14 @@ class _LengthConverterState extends State<LengthConverter>
                     S.t('from', widget.localeCode),
                     selectedFrom,
                     (v) {
-                      setState(() {
-                        selectedFrom = v;
-                        convert();
-                      });
+                      setState(() => selectedFrom = v);
+                      convert();
                     },
                     Icons.input,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: _buildSwapButton(),
                 ),
                 Expanded(
@@ -564,19 +673,17 @@ class _LengthConverterState extends State<LengthConverter>
                     S.t('to', widget.localeCode),
                     selectedTo,
                     (v) {
-                      setState(() {
-                        selectedTo = v;
-                        convert();
-                      });
+                      setState(() => selectedTo = v);
+                      convert();
                     },
                     Icons.output,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             _buildResultCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             _buildClearButton(),
           ],
         ),

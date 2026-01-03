@@ -14,8 +14,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
-
-  // ✅ INITIALIZE ADMOB (MANDATORY)
   await MobileAds.instance.initialize();
 
   final prefs = await SharedPreferences.getInstance();

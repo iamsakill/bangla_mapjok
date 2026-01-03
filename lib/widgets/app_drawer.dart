@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 import '../screens/setting_page.dart';
 import '../screens/about_page.dart';
 import '../screens/help_page.dart';
@@ -15,11 +16,36 @@ class AppDrawer extends StatefulWidget {
   State<AppDrawer> createState() => _AppDrawerState();
 }
 
-class _AppDrawerState extends State<AppDrawer>
-    with SingleTickerProviderStateMixin {
+class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  late List<AnimationController> _symbolControllers;
+  late List<Animation<Offset>> _symbolAnimations;
+
+  final List<String> _symbols = [
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '+',
+    '−',
+    '×',
+    '÷',
+    '=',
+    '%',
+    '√',
+    'π',
+    '∑',
+    '∞',
+  ];
 
   @override
   void initState() {
@@ -39,11 +65,43 @@ class _AppDrawerState extends State<AppDrawer>
         );
 
     _fadeController.forward();
+
+    // Setup symbol animations
+    _setupSymbolAnimations();
+  }
+
+  void _setupSymbolAnimations() {
+    _symbolControllers = List.generate(
+      _symbols.length,
+      (index) => AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 3000 + (index * 100)),
+      )..repeat(),
+    );
+
+    _symbolAnimations = _symbolControllers.asMap().entries.map((entry) {
+      final index = entry.key;
+      final controller = entry.value;
+
+      // Create different movement patterns
+      final startX = (index % 4) * 0.3 - 0.2;
+      final endX = startX + (index.isEven ? 0.3 : -0.3);
+      final startY = -0.3 - (index * 0.1);
+      final endY = 1.2 + (index * 0.05);
+
+      return Tween<Offset>(
+        begin: Offset(startX, startY),
+        end: Offset(endX, endY),
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.linear));
+    }).toList();
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
+    for (var controller in _symbolControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -64,7 +122,7 @@ class _AppDrawerState extends State<AppDrawer>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Enhanced Drawer Header
+                    // Enhanced Drawer Header with Animated Background
                     _buildDrawerHeader(colorScheme, localeProvider),
 
                     const SizedBox(height: 8),
@@ -175,12 +233,11 @@ class _AppDrawerState extends State<AppDrawer>
     LocaleProvider localeProvider,
   ) {
     return Container(
-      // Increased height from 180 to 220 to accommodate SafeArea and Padding
       height: 220,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorScheme.primary.withOpacity(0.8),
+            colorScheme.errorContainer.withOpacity(0.8),
             colorScheme.secondary.withOpacity(0.6),
           ],
           begin: Alignment.topLeft,
@@ -194,65 +251,131 @@ class _AppDrawerState extends State<AppDrawer>
           ),
         ],
       ),
-      child: SafeArea(
-        bottom: false, // Ensure we don't add extra padding at the bottom
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            // Removed mainAxisSize: MainAxisSize.min to allow the
-            // Column to occupy the available container space properly
-            children: [
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.calculate_outlined,
-                    size: 32,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  S.t('app_title', localeProvider.locale.languageCode),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 4),
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  localeProvider.isBangla
-                      ? 'দ্রুত এবং নির্ভুল রূপান্তর'
-                      : 'Fast and accurate conversions',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
-                    letterSpacing: 0.3,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+      child: Stack(
+        children: [
+          // Animated symbols background
+          ClipRect(
+            child: Stack(
+              children: _symbolAnimations.asMap().entries.map((entry) {
+                final index = entry.key;
+                final animation = entry.value;
+
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (context, child) {
+                    return Positioned(
+                      left:
+                          MediaQuery.of(context).size.width *
+                          0.85 *
+                          animation.value.dx,
+                      top: 220 * animation.value.dy,
+                      child: Opacity(
+                        opacity: 0.12,
+                        child: Transform.rotate(
+                          angle: _symbolControllers[index].value * 2 * math.pi,
+                          child: Text(
+                            _symbols[index],
+                            style: TextStyle(
+                              fontSize: 28 + (index % 3) * 8,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
           ),
-        ),
+
+          // Content overlay
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Hero(
+                    tag: 'app_icon',
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            colorScheme.primary.withOpacity(0.8),
+                            colorScheme.secondary.withOpacity(0.6),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Image.asset(
+                        'assets/images/icon.png',
+                        height: 32,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Text(
+                      S.t('app_title', localeProvider.locale.languageCode),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Text(
+                      localeProvider.isBangla
+                          ? 'দ্রুত এবং নির্ভুল রূপান্তর'
+                          : 'Fast and accurate conversions',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                        letterSpacing: 0.3,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

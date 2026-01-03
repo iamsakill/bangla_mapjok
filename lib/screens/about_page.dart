@@ -1,7 +1,7 @@
+import 'package:bangla_mapjok/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/locale_provider.dart';
-import '../utils/localization.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -46,27 +46,15 @@ class _AboutPageState extends State<AboutPage>
     final localeProvider = Provider.of<LocaleProvider>(context);
     final isBangla = localeProvider.isBangla;
     final colorScheme = Theme.of(context).colorScheme;
+    final String currentLocale = isBangla ? 'bn' : 'en';
 
     return Scaffold(
+      extendBodyBehindAppBar: false,
       backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          isBangla ? 'সম্পর্কে' : 'About',
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: CustomAppBar(localeCode: currentLocale, heroTag: ''),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           children: [
             // App Logo Section
@@ -103,12 +91,6 @@ class _AboutPageState extends State<AboutPage>
             ),
 
             const SizedBox(height: 16),
-
-            // Version Info
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: _buildVersionInfo(colorScheme, isBangla),
-            ),
           ],
         ),
       ),
@@ -117,6 +99,7 @@ class _AboutPageState extends State<AboutPage>
 
   Widget _buildLogoSection(ColorScheme colorScheme, bool isBangla) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -144,15 +127,20 @@ class _AboutPageState extends State<AboutPage>
               color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.calculate_outlined,
-              size: 64,
-              color: Colors.white,
+            child: Hero(
+              // FIXED: Changed tag from 'app_icon' to 'app_icon_about'
+              // to prevent duplicate tag error with the AppBar logo.
+              tag: 'app_icon_about',
+              child: Image.asset(
+                'assets/images/icon.png',
+                height: 42,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            S.t('app_title', isBangla ? 'bn' : 'en'),
+            isBangla ? 'মাপজোক সম্পর্কে' : 'About Mapjok',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -187,54 +175,36 @@ class _AboutPageState extends State<AboutPage>
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.description_outlined,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
+              Icon(
+                Icons.description_outlined,
+                color: colorScheme.primary,
+                size: 20,
               ),
               const SizedBox(width: 12),
               Text(
                 isBangla ? 'বর্ণনা' : 'Description',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             isBangla
-                ? 'এটি একটি আধুনিক এবং শক্তিশালী ইউনিট কনভার্টার অ্যাপ্লিকেশন যা বিভিন্ন ধরনের পরিমাপ একক রূপান্তরের জন্য ডিজাইন করা হয়েছে। এই অ্যাপটি দ্রুত, নির্ভুল এবং ব্যবহার করা সহজ।'
-                : 'A modern and powerful unit converter application designed for various types of measurement conversions. This app is fast, accurate, and easy to use.',
+                ? 'এটি একটি আধুনিক এবং শক্তিশালী ইউনিট কনভার্টার অ্যাপ্লিকেশন যা বিভিন্ন ধরনের পরিমাপ একক রূপান্তরের জন্য ডিজাইন করা হয়েছে।'
+                : 'A modern and powerful unit converter application designed for various types of measurement conversions.',
             style: TextStyle(
               fontSize: 14,
-              height: 1.6,
+              height: 1.5,
               color: colorScheme.onSurface.withOpacity(0.8),
             ),
           ),
@@ -257,11 +227,6 @@ class _AboutPageState extends State<AboutPage>
               'desc': 'সঠিক গণনা',
             },
             {
-              'icon': Icons.category,
-              'title': 'একাধিক বিভাগ',
-              'desc': 'বিভিন্ন ইউনিট সমর্থন',
-            },
-            {
               'icon': Icons.language,
               'title': 'বহুভাষিক',
               'desc': 'বাংলা ও ইংরেজি',
@@ -279,11 +244,6 @@ class _AboutPageState extends State<AboutPage>
               'desc': 'Accurate calculations',
             },
             {
-              'icon': Icons.category,
-              'title': 'Multiple Categories',
-              'desc': 'Various units supported',
-            },
-            {
               'icon': Icons.language,
               'title': 'Multilingual',
               'desc': 'Bengali & English',
@@ -295,89 +255,30 @@ class _AboutPageState extends State<AboutPage>
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(Icons.stars, color: colorScheme.primary, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                isBangla ? 'বৈশিষ্ট্য' : 'Features',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
+          Text(
+            isBangla ? 'বৈশিষ্ট্য' : 'Features',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...features.map(
-            (feature) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          colorScheme.primaryContainer.withOpacity(0.5),
-                          colorScheme.secondaryContainer.withOpacity(0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      feature['icon'] as IconData,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          feature['title'] as String,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          feature['desc'] as String,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            (f) => ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(f['icon'] as IconData, color: colorScheme.primary),
+              title: Text(
+                f['title'] as String,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              subtitle: Text(
+                f['desc'] as String,
+                style: const TextStyle(fontSize: 12),
               ),
             ),
           ),
@@ -388,88 +289,23 @@ class _AboutPageState extends State<AboutPage>
 
   Widget _buildDeveloperCard(ColorScheme colorScheme, bool isBangla) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(Icons.code, color: colorScheme.primary, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                isBangla ? 'মো: শাকিল আহমেদ' : 'Md Shakil Ahamed',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           Text(
-            isBangla
-                ? 'তৈরি করেছেন ভালোবাসা এবং যত্নের সাথে'
-                : 'Made with love and care',
+            isBangla ? 'মো: শাকিল আহমেদ' : 'Md Shakil Ahamed',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            isBangla ? 'ডেভেলপার' : 'Developer',
             style: TextStyle(
-              fontSize: 14,
-              color: colorScheme.onSurface.withOpacity(0.8),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '© 2026 ${S.t('app_title', isBangla ? 'bn' : 'en')}',
-            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVersionInfo(ColorScheme colorScheme, bool isBangla) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primaryContainer.withOpacity(0.2),
-            colorScheme.secondaryContainer.withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.info_outline, size: 16, color: colorScheme.primary),
-          const SizedBox(width: 8),
-          Text(
-            isBangla ? 'সংস্করণ ১.০.০ (বিল্ড ১)' : 'Version 1.0.0 (Build 1)',
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.onSurfaceVariant,
+              color: colorScheme.primary,
               fontWeight: FontWeight.w500,
             ),
           ),

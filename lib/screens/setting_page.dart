@@ -288,7 +288,10 @@ class _SettingsPageState extends State<SettingsPage>
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      appBar: CustomAppBar(localeCode: localeProvider.locale.languageCode),
+      appBar: CustomAppBar(
+        localeCode: localeProvider.locale.languageCode,
+        heroTag: '',
+      ),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(

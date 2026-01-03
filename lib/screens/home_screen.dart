@@ -22,14 +22,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selected = 0;
-
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkLanguage());
     _loadBannerAd();
   }
@@ -45,16 +43,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-1125345878565611/9139675106', // TEST banner
+      // Standard Google Test ID for Android.
+      // If testing on iOS, use: 'ca-app-pub-3940256099942544/2934735716'
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (_) {
+        onAdLoaded: (ad) {
           setState(() => _isBannerLoaded = true);
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
-          debugPrint('BannerAd failed to load: $error');
+          debugPrint('BannerAd failed: $error');
         },
       ),
     )..load();
@@ -108,99 +108,84 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return Scaffold(
-      appBar: CustomAppBar(localeCode: localeProvider.locale.languageCode),
+      appBar: CustomAppBar(localeCode: localeCode, heroTag: ''),
       drawer: const AppDrawer(),
-
       body: Column(
         children: [
-          // MAIN CONTENT
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              switchInCurve: Curves.easeInOut,
-              switchOutCurve: Curves.easeInOut,
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.05, 0),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                );
-              },
               child: Container(
                 key: ValueKey<int>(_selected),
                 child: pages[_selected],
               ),
             ),
           ),
-
-          // BANNER AD (ABOVE BOTTOM NAV)
+          // FIXED AD PLACEMENT
           if (_isBannerLoaded && _bannerAd != null)
-            Container(
+            SizedBox(
               width: _bannerAd!.size.width.toDouble(),
               height: _bannerAd!.size.height.toDouble(),
-              alignment: Alignment.center,
               child: AdWidget(ad: _bannerAd!),
             ),
         ],
       ),
+      bottomNavigationBar: _buildBottomNav(
+        colorScheme,
+        icons,
+        activeIcons,
+        labels,
+      ),
+    );
+  }
 
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          child: BottomNavigationBar(
-            currentIndex: _selected,
-            onTap: _onTabTapped,
-            type: BottomNavigationBarType.fixed,
-            elevation: 0,
-            backgroundColor: colorScheme.surface,
-            selectedItemColor: colorScheme.primary,
-            unselectedItemColor: colorScheme.onSurfaceVariant.withOpacity(0.6),
-            selectedFontSize: 12,
-            unselectedFontSize: 11,
-            selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-            items: List.generate(
-              4,
-              (index) => BottomNavigationBarItem(
-                icon: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  padding: EdgeInsets.all(_selected == index ? 8 : 6),
-                  decoration: BoxDecoration(
-                    gradient: _selected == index
-                        ? LinearGradient(
-                            colors: [
-                              colorScheme.primary.withOpacity(0.15),
-                              colorScheme.secondary.withOpacity(0.1),
-                            ],
-                          )
-                        : null,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    _selected == index ? activeIcons[index] : icons[index],
-                    size: _selected == index ? 26 : 24,
-                  ),
+  Widget _buildBottomNav(
+    ColorScheme colorScheme,
+    List<IconData> icons,
+    List<IconData> activeIcons,
+    List<String> labels,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: BottomNavigationBar(
+          currentIndex: _selected,
+          onTap: _onTabTapped,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: colorScheme.errorContainer,
+          selectedItemColor: colorScheme.primary,
+          unselectedItemColor: colorScheme.onSurfaceVariant,
+          items: List.generate(
+            4,
+            (index) => BottomNavigationBarItem(
+              icon: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: EdgeInsets.all(_selected == index ? 8 : 6),
+                decoration: BoxDecoration(
+                  gradient: _selected == index
+                      ? LinearGradient(
+                          colors: [
+                            colorScheme.primary.withOpacity(0.15),
+                            colorScheme.secondary.withOpacity(0.1),
+                          ],
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                label: labels[index],
+                child: Icon(
+                  _selected == index ? activeIcons[index] : icons[index],
+                ),
               ),
+              label: labels[index],
             ),
           ),
         ),

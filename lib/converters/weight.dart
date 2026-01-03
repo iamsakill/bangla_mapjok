@@ -29,6 +29,7 @@ class _WeightConverterState extends State<WeightConverter>
   );
 
   final List<Map<String, dynamic>> units = [
+    // Standard units
     {
       'key': 'Kilogram',
       'short': 'kg',
@@ -56,7 +57,8 @@ class _WeightConverterState extends State<WeightConverter>
     },
     {'key': 'Ounce', 'short': 'oz', 'factor': 0.0283495, 'icon': Icons.coffee},
     {'key': 'Stone', 'short': 'st', 'factor': 6.35029, 'icon': Icons.person},
-    {'key': 'Viss', 'short': 'ভিস', 'factor': 40, 'icon': Icons.inventory_2},
+    // Bangladeshi traditional units
+    {'key': 'Viss', 'short': 'ভিস', 'factor': 0.933, 'icon': Icons.inventory_2},
     {'key': 'Tola', 'short': 'তোলা', 'factor': 0.01166, 'icon': Icons.diamond},
     {'key': 'Chhatak', 'short': 'চাটক', 'factor': 0.01215, 'icon': Icons.grain},
   ];
@@ -129,8 +131,6 @@ class _WeightConverterState extends State<WeightConverter>
       setState(() {
         result = inputValue * fromFactor / toFactor;
       });
-
-      // Animate result
       _scaleController.reset();
       _scaleController.forward();
     }
@@ -157,98 +157,138 @@ class _WeightConverterState extends State<WeightConverter>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              colorScheme.primaryContainer.withOpacity(0.3),
-              colorScheme.secondaryContainer.withOpacity(0.2),
+              colorScheme.primaryContainer.withOpacity(0.4),
+              colorScheme.secondaryContainer.withOpacity(0.3),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: colorScheme.outline.withOpacity(0.2),
-            width: 1,
+            color: colorScheme.primary.withOpacity(0.1),
+            width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: colorScheme.primary.withOpacity(0.15),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.05),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
+              spreadRadius: -8,
             ),
           ],
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [
+                        colorScheme.primary.withOpacity(0.15),
+                        colorScheme.primary.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: colorScheme.primary.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     Icons.calculate_outlined,
                     color: colorScheme.primary,
-                    size: 24,
+                    size: 26,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Text(
                   S.t('value', widget.localeCode),
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurface,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _textController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+            const SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: colorScheme.outline.withOpacity(0.15),
+                  width: 1.5,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: colorScheme.outline.withOpacity(0.2),
-                    width: 1,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _textController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.primary,
+                  letterSpacing: -0.5,
+                ),
+                decoration: InputDecoration(
+                  filled: false,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2.5,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
+                  suffixIcon: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      color: colorScheme.primary.withOpacity(0.4),
+                      size: 24,
+                    ),
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                suffixIcon: Icon(
-                  Icons.edit_outlined,
-                  color: colorScheme.primary.withOpacity(0.5),
-                ),
+                onChanged: (v) {
+                  setState(() {
+                    inputValue = double.tryParse(v) ?? 0.0;
+                    convert();
+                  });
+                },
               ),
-              onChanged: (v) {
-                setState(() {
-                  inputValue = double.tryParse(v) ?? 0.0;
-                  convert();
-                });
-              },
             ),
           ],
         ),
@@ -260,24 +300,29 @@ class _WeightConverterState extends State<WeightConverter>
     String label,
     String? value,
     Function(String?) onChanged,
-    IconData icon,
-  ) {
+    IconData icon) {
     final colorScheme = Theme.of(context).colorScheme;
     final localeCode = widget.localeCode;
 
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
             offset: const Offset(0, 4),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -285,16 +330,23 @@ class _WeightConverterState extends State<WeightConverter>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
             child: Row(
               children: [
-                Icon(icon, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 16, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
                     letterSpacing: 0.5,
                   ),
@@ -304,14 +356,18 @@ class _WeightConverterState extends State<WeightConverter>
           ),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            initialValue: value,
+            initialValue: units.any((e) => e['short'] == value) ? value : null,
             decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
             ),
             icon: Icon(
               Icons.arrow_drop_down_circle,
               color: colorScheme.primary,
+              size: 24,
             ),
             items: units
                 .map(
@@ -319,21 +375,29 @@ class _WeightConverterState extends State<WeightConverter>
                     value: e['short'] as String,
                     child: Row(
                       children: [
-                        Icon(
-                          e['icon'] as IconData,
-                          size: 20,
-                          color: colorScheme.primary.withOpacity(0.7),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            e['icon'] as IconData,
+                            size: 20,
+                            color: colorScheme.primary,
+                          ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             localeCode == 'bn'
                                 ? '${unitBnNames[e['key']] ?? e['key']} (${e['short']})'
                                 : '${S.t(e['key'], localeCode)} (${e['short']})',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color: colorScheme.onSurface,
+                              letterSpacing: 0.1,
                             ),
                           ),
                         ),
@@ -354,7 +418,6 @@ class _WeightConverterState extends State<WeightConverter>
 
   Widget _buildSwapButton() {
     final colorScheme = Theme.of(context).colorScheme;
-
     return RotationTransition(
       turns: _swapRotation,
       child: Container(
@@ -368,16 +431,32 @@ class _WeightConverterState extends State<WeightConverter>
           boxShadow: [
             BoxShadow(
               color: colorScheme.primary.withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+              spreadRadius: -2,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.2),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+              spreadRadius: -4,
             ),
           ],
         ),
-        child: IconButton(
-          icon: const Icon(Icons.swap_horiz, size: 28),
-          color: Colors.white,
-          onPressed: swapUnits,
-          tooltip: S.t('swap_units', widget.localeCode),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: swapUnits,
+            customBorder: const CircleBorder(),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              child: const Icon(
+                Icons.swap_horiz,
+                size: 28,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -385,27 +464,30 @@ class _WeightConverterState extends State<WeightConverter>
 
   Widget _buildResultCard() {
     final colorScheme = Theme.of(context).colorScheme;
-
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              colorScheme.primary.withOpacity(0.8),
-              colorScheme.secondary.withOpacity(0.6),
-            ],
+            colors: [colorScheme.primary, colorScheme.secondary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: colorScheme.primary.withOpacity(0.4),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: colorScheme.primary.withOpacity(0.2),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
+              spreadRadius: -8,
             ),
           ],
         ),
@@ -415,30 +497,34 @@ class _WeightConverterState extends State<WeightConverter>
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1.5,
+                    ),
                   ),
                   child: const Icon(
                     Icons.done_all,
                     color: Colors.white,
-                    size: 20,
+                    size: 22,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  S.t('result', widget.localeCode),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(width: 14),
+                const Text(
+                  'Result',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white70,
-                    letterSpacing: 1,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -446,23 +532,24 @@ class _WeightConverterState extends State<WeightConverter>
                   child: Text(
                     result.isNaN ? '0' : result.toStringAsFixed(6),
                     style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      letterSpacing: -0.5,
+                      letterSpacing: -1,
+                      height: 1.1,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
                     selectedTo ?? '',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white70,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withOpacity(0.85),
+                      letterSpacing: 0.3,
                     ),
                   ),
                 ),
@@ -476,36 +563,48 @@ class _WeightConverterState extends State<WeightConverter>
 
   Widget _buildClearButton() {
     final colorScheme = Theme.of(context).colorScheme;
-
     return SizedBox(
       width: double.infinity,
-      height: 56,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            selectedFrom = null;
-            selectedTo = null;
-            inputValue = 1.0;
-            result = 0.0;
-            _textController.text = '1.0';
-          });
-          HapticFeedback.mediumImpact();
-        },
-        icon: const Icon(Icons.clear_all, size: 22),
-        label: Text(
-          S.t('clear', widget.localeCode),
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
+      height: 60,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.error.withOpacity(0.2),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+              spreadRadius: -2,
+            ),
+          ],
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.errorContainer,
-          foregroundColor: colorScheme.onErrorContainer,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedFrom = null;
+              selectedTo = null;
+              inputValue = 1.0;
+              result = 0.0;
+              _textController.text = '1.0';
+            });
+            HapticFeedback.mediumImpact();
+          },
+          icon: const Icon(Icons.clear_all, size: 24),
+          label: const Text(
+            'Clear',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.errorContainer,
+            foregroundColor: colorScheme.onErrorContainer,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
           ),
         ),
       ),
@@ -521,44 +620,34 @@ class _WeightConverterState extends State<WeightConverter>
         child: Column(
           children: [
             _buildInputCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Row(
               children: [
                 Expanded(
-                  child: _buildUnitSelector(
-                    S.t('from', widget.localeCode),
-                    selectedFrom,
-                    (v) {
-                      setState(() {
-                        selectedFrom = v;
-                        convert();
-                      });
-                    },
-                    Icons.input,
-                  ),
+                  child: _buildUnitSelector('From', selectedFrom, (v) {
+                    setState(() {
+                      selectedFrom = v;
+                      convert();
+                    });
+                  }, Icons.input),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: _buildSwapButton(),
                 ),
                 Expanded(
-                  child: _buildUnitSelector(
-                    S.t('to', widget.localeCode),
-                    selectedTo,
-                    (v) {
-                      setState(() {
-                        selectedTo = v;
-                        convert();
-                      });
-                    },
-                    Icons.output,
-                  ),
+                  child: _buildUnitSelector('To', selectedTo, (v) {
+                    setState(() {
+                      selectedTo = v;
+                      convert();
+                    });
+                  }, Icons.output),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             _buildResultCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             _buildClearButton(),
           ],
         ),
